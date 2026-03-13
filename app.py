@@ -1,37 +1,40 @@
 import streamlit as st
 import pandas as pd
 import os
+from datetime import datetime
 
-# 1. Τίτλος Επιχείρησης (Άλλαξε το "Το Υπέροχο Κατάλυμά μου")
-st.set_page_config(page_title="Check-in App", page_icon="🏠")
+st.set_page_config(page_title="Sounio Garden House Check-in", page_icon="🏠")
 
-# 2. Προσθήκη Φωτογραφίας
-# Βεβαιώσου ότι η εικόνα είναι στον ίδιο φάκελο και λέγεται π.χ. logo.jpg
 if os.path.exists("logo.jpg"):
     st.image("logo.jpg", use_container_width=True)
 
-st.title("Καλώς ήρθατε στο Sounio Garden House🏠")
-st.subheader("Παρακαλούμε συμπληρώστε την επίσημη φόρμα άφιξης")
+st.title("Καλώς ήρθατε στο Sounio Garden House 🏠")
+st.subheader("Φόρμα Δήλωσης Στοιχείων / Check-in Form")
 
-# Φόρμα στοιχείων
 with st.form("checkin_form"):
-    name = st.text_input("Ονοματεπώνυμο (όπως αναγράφεται στο διαβατήριο)")
-    passport = st.text_input("Αριθμός Ταυτότητας / Διαβατηρίου")
-    phone = st.text_input("Τηλέφωνο Επικοινωνίας (με κωδικό χώρας)")
+    residence = st.radio("Είστε μόνιμος κάτοικος Ελλάδας; / Are you a permanent resident of Greece?", ("Ναι / Yes", "Όχι / No"))
+    name = st.text_input("Ονοματεπώνυμο / Full Name")
     email = st.text_input("Email")
-    
-    submit = st.form_submit_button("Ολοκλήρωση Υποβολής")
+    phone = st.text_input("Τηλέφωνο / Phone Number")
+
+    if residence == "Ναι / Yes":
+        tax_id = st.text_input("ΑΦΜ")
+        id_number = st.text_input("Αριθμός Ταυτότητας")
+        country = "Ελλάδα"
+    else:
+        passport = st.text_input("Passport Number")
+        country = st.text_input("Country of Origin / Χώρα Προέλευσης")
+        tax_id = "N/A"
+        id_number = passport
+
+    submit = st.form_submit_button("Υποβολή Στοιχείων / Submit")
 
 if submit:
-    if name and passport:
-        new_data = {"Όνομα": [name], "Διαβατήριο": [passport], "Τηλέφωνο": [phone], "Email": [email]}
+    if name and (id_number or tax_id):
+        now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        new_data = {"Ημερομηνία": [now], "Τύπος": [residence], "Όνομα": [name], "Χώρα": [country], "Στοιχείο": [tax_id if residence == "Ναι / Yes" else id_number], "Email": [email], "Τηλέφωνο": [phone]}
         df = pd.DataFrame(new_data)
-        
-        file_path = "customers.csv"
-        if not os.path.isfile(file_path):
-            df.to_csv(file_path, index=False)
-        else:
-            df.to_csv(file_path, mode='a', header=False, index=False)            
         st.success("Η υποβολή έγινε επιτυχώς! Καλή διαμονή!")
+        st.balloons() # Αυτό θα βγάλει μπαλόνια στην οθόνη του πελάτη!
     else:
-        st.warning("Παρακαλούμε συμπληρώστε τα υποχρεωτικά πεδία (Όνομα & Διαβατήριο).")
+        st.error("Παρακαλούμε συμπληρώστε τα υποχρεωτικά πεδία.")
