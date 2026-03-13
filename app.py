@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from gspread_pandas import Spread
 
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1c36dU0WnhZsPFFrmaSIL9t-BjjxKA1d207CE5d5RYNo/edit?usp=sharing"
+SHEET_URL = "https://sheetdb.io/api/v1/ncc7d3mzgjt97"
 
 st.set_page_config(page_title="Sounio Garden House Check-in", page_icon="🏠")
 
