@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import os
 from datetime import datetime
+from gspread_pandas import Spread
+
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1c36dU0WnhZsPFFrmaSIL9t-BjjxKA1d207CE5d5RYNo/edit?usp=sharing"
 
 st.set_page_config(page_title="Sounio Garden House Check-in", page_icon="🏠")
 
@@ -34,7 +37,13 @@ if submit:
         now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         new_data = {"Ημερομηνία": [now], "Τύπος": [residence], "Όνομα": [name], "Χώρα": [country], "Στοιχείο": [tax_id if residence == "Ναι / Yes" else id_number], "Email": [email], "Τηλέφωνο": [phone]}
         df = pd.DataFrame(new_data)
-        st.success("Η υποβολή έγινε επιτυχώς! Καλή διαμονή!")
-        st.balloons() # Αυτό θα βγάλει μπαλόνια στην οθόνη του πελάτη!
+        
+        try:
+            spread = Spread(SHEET_URL)
+            spread.df_to_sheet(df, index=False, header=False, start="A2", replace=False)
+            st.success("Η υποβολή έγινε επιτυχώς στο Excel! Καλή διαμονή!")
+            st.balloons()
+        except Exception as e:
+            st.error(f"Πρόβλημα σύνδεσης με το Excel: {e}")
     else:
         st.error("Παρακαλούμε συμπληρώστε τα υποχρεωτικά πεδία.")
